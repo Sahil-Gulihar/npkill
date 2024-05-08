@@ -1,0 +1,19 @@
+{
+  "name": "del",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongo": "^0.1.0",
+    "mongosh": "^2.2.5",
+    "sh": "^0.0.3",
+    "yt": "^0.3.2"
+  }
+}

@@ -1,0 +1,40 @@
+#! /bin/bash
+
+inputDir="$1"
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <path>"
+    exit 1
+fi
+
+
+find $inputDir -name 'node_modules' -type d > Delete.txt
+
+if [ -s Delete.txt ]; then
+    echo "All your node modules are listed in Delete.txt "
+    echo "Do you want to delete it? [y/n/r]"
+    read -r answer
+
+    
+    if [ "$answer" = 'y' ]; then
+        # Read Delete.txt line by line and delete each directory
+        while IFS= read -r directory; do
+            rm -rf "$directory"
+        done < Delete.txt
+        echo "Directories deleted."
+        exit 0
+    elif [ "$answer" = 'r' ]; then
+        # Read Delete.txt line by line and delete each directory
+        nvim Delete.txt
+        echo "Directories Read succesfully."
+        exit 0
+        fi
+    else
+        echo "No directories deleted."
+        exit 0
+    fi
+    
+else
+    echo "No 'node_modules' directories found."
+    exit 0
+fi
