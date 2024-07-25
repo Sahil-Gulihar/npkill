@@ -1,39 +1,58 @@
-#! /bin/bash
+#!/bin/bash
 
 inputDir="$1"
 
-if [ -z "$1" ]; then
+# Check if inputdir provided
+if [ -z "$inputDir" ]; then
     echo "Usage: $0 <path>"
     exit 1
 fi
 
+# Find 'node_modules' directories and write to delete.txt
+find "$inputDir" -name 'node_modules' -type d > delete.txt
 
-find $inputDir -name 'node_modules' -type d > Delete.txt
+# Spinner function for THREAD_IS_NOT_STUCCC animation
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinstr='|/-\'
+    while kill -0 "$pid" 2>/dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+}
 
-if [ -s Delete.txt ]; then
-    echo "All your node modules are listed in Delete.txt "
-    echo "Do you want to delete it? [y/n/r]"
+# Check if delete.txt is not empty
+if [ -s delete.txt ]; then
+    echo "All your deleted node modules are listed in delete.txt"
+    echo "Do you want to delete them? (yes/no/review)->[y/n/r]: "
     read -r answer
 
-    
     if [ "$answer" = 'y' ]; then
-        # Read Delete.txt line by line and delete each directory
-        while IFS= read -r directory; do
-            rm -rf "$directory"
-        done < Delete.txt
+        # run the deletion in the background
+        {
+            while IFS= read -r directory; do
+                rm -rf "$directory"
+            done < delete.txt
+        } &
+        pid=$!
+        spinner "$pid"
+        wait "$pid"
         echo "Directories deleted."
         exit 0
     elif [ "$answer" = 'r' ]; then
-        # Read Delete.txt line by line and delete each directory
-        nvim Delete.txt
-        echo "Directories Read succesfully."
+        # Open delete.txt with default editor for review
+        ${EDITOR:-nano} delete.txt
+        echo "Directories listed in delete.txt."
         exit 0
-        fi
     else
         echo "No directories deleted."
         exit 0
     fi
-    
 else
     echo "No 'node_modules' directories found."
     exit 0
